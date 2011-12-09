@@ -22,7 +22,7 @@ Or clone from:
 
 ## Usage:
 
-Coming soon...
+See examples for now, and read the code (lots of comments)
 
 ## A note on forking:
 
