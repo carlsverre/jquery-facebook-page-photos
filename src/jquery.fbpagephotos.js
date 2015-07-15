@@ -1,6 +1,6 @@
 /*
  * Facebook Page Photos (for jQuery)
- * version: 1.0
+ * version: 1.1
  * @requires jQuery v1.7 or later
  * @homepage https://github.com/carlsverre/jquery-facebook-page-photos
  *
@@ -16,7 +16,8 @@
         // this is the bare minimum for default functionality
         // will render a gallery of photos into #some_id
         $('#some_id').FBPagePhotos({
-            album_id: '33333'
+            album_id: '33333',
+            access_token: 'VALID_FACEBOOK_ACCESS_TOKEN'
         });
 
         // allows you to pick the album
@@ -106,6 +107,10 @@
 
         options = $.extend({}, default_options, options);
 
+        if (!options.hasOwnProperty('access_token')) {
+            $.error('jQuery.FBPagePhotos requires a valid facebook access token with correct permissions');
+        }
+
         if (options.render) {
             options.element = this;
         }
@@ -121,8 +126,12 @@
         }
     };
 
-    function graph_request(id, method, success, error) {
-        $.getJSON("http://graph.facebook.com/" + id + "/" + method + "?callback=?")
+    function graph_url(id, method) {
+        return "https://graph.facebook.com/" + id + "/" + method;
+    };
+
+    function graph_request(id, method, success, error, options) {
+        $.getJSON(graph_url(id, method) + "?callback=?", { access_token: options.access_token })
         .success(function(response) {
             if (typeof response.error !== 'undefined') {
                 error(response.error);
@@ -137,6 +146,7 @@
             page_id
             , 'albums'
             , function(albums) {
+                albums = add_album_helpers(albums);
                 options.albums_cb(albums, function(album) {
                     if ($.isPlainObject(album)) {
                         album = album.id;
@@ -146,7 +156,19 @@
                 });
             }
             , options.error
+            , options
         );
+    };
+
+    function add_album_helpers(albums) {
+        return $.map(albums, function(album) {
+            // size is in ['thumbnail', 'small', 'album']
+            album.cover_photo_url = function(size) {
+                if (typeof(size) === "undefined") { size = 'small' }
+                return graph_url(album.id, 'picture') + "?type=" + size;
+            };
+            return album;
+        });
     };
 
     function get_photos(album_id, options) {
@@ -161,6 +183,7 @@
                 }
             }
             , options.error
+            , options
         );
     };
 

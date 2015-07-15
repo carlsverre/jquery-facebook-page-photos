@@ -1,8 +1,14 @@
 (function() {
-    $('#photos').FBPagePhotos({ album_id: 235025249884452 });
+    var ACCESS_TOKEN = "YOUR ACCESS TOKEN";
+
+    $('#photos').FBPagePhotos({
+        album_id: 235025249884452
+        , access_token: ACCESS_TOKEN
+    });
 
     $('#photos-2').FBPagePhotos({
         page_id: "christy-sverre-art"
+        , access_token: ACCESS_TOKEN
         , albums_cb: function(albums, next) {
             var select = $('<select>');
 
@@ -23,6 +29,7 @@
 
     $.FBPagePhotos({
         page_id: "christy-sverre-art"
+        , access_token: ACCESS_TOKEN
         , albums_cb: function(albums, next) {
             next(albums[0]);        // you could let the user select here, for simplicity I am just choosing the first album
         }
